@@ -5,6 +5,10 @@
       <Name>ProjectAssets</Name>
       <ViewSelectedBy>
           <TypeName>ProjectAssetsVersion</TypeName>
+          <TypeName>Target</TypeName>
+          <TypeName>Package</TypeName>
+          <TypeName>Project</TypeName>
+          <TypeName>Dependency</TypeName>
       </ViewSelectedBy>
       <GroupBy>
           <PropertyName>PSParentPath</PropertyName>
