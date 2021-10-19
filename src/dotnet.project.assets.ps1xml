@@ -6,6 +6,8 @@
       <ViewSelectedBy>
           <TypeName>Compile</TypeName>
           <TypeName>Dependency</TypeName>
+          <TypeName>LibraryContainer</TypeName>
+          <TypeName>Library</TypeName>
           <TypeName>Package</TypeName>
           <TypeName>PAFile</TypeName>
           <TypeName>Project</TypeName>
@@ -14,6 +16,7 @@
           <TypeName>RuntimeTarget</TypeName>
           <TypeName>RTFile</TypeName>
           <TypeName>Target</TypeName>
+          <TypeName>TargetContainer</TypeName>
       </ViewSelectedBy>
       <GroupBy>
           <PropertyName>PSParentPath</PropertyName>
@@ -22,16 +25,18 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader><Label>Name</Label></TableColumnHeader>
-          <TableColumnHeader><Label>Version</Label></TableColumnHeader>
-          <TableColumnHeader><Label>Type</Label></TableColumnHeader>
+          <!--TableColumnHeader><Label>Version</Label></TableColumnHeader-->
+          <TableColumnHeader><Label>Value</Label></TableColumnHeader>
+          <!--TableColumnHeader><Label>Type</Label></TableColumnHeader-->
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem>
-              <TableColumnItem><PropertyName>Version</PropertyName></TableColumnItem>
-              <TableColumnItem><ScriptBlock>$_.GetType().Name</ScriptBlock></TableColumnItem>
+              <!--TableColumnItem><PropertyName>Version</PropertyName></TableColumnItem-->
+              <TableColumnItem><ScriptBlock>$_.GetValue()</ScriptBlock></TableColumnItem>
+              <!--TableColumnItem><ScriptBlock>$_.GetType().Name</ScriptBlock></TableColumnItem-->
             </TableColumnItems>
           </TableRowEntry>
           </TableRowEntries>
