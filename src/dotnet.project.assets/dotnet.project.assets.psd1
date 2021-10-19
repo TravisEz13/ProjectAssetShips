@@ -7,13 +7,15 @@
     RootModule = './dotnet.project.assets.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0'
+    ModuleVersion = '0.1.1'
 
     # ID used to uniquely identify this module
     GUID = '24de7451-0f71-4e7a-8209-7c9d48900550'
 
     # Author of this module
     Author = 'Travis Plunk'
+
+    Description = 'SHiPs provider for project.assets.json files'
 
     # Company or vendor of this module
     CompanyName = 'Unknown'

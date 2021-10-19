@@ -114,12 +114,14 @@ class Library : SHiPSDirectory {
 }
 
 class Target : SHiPSDirectory {
+    [string] $Path
     Target([string]$name):base($name) {
+        $this.Path = $name
     }
 
     [object[]] GetChildItem() {
         $result = @()
-        $target = $this.Name
+        $target = $this.Path
         $packages = [ProjectAssets]::Json.targets.$target
         foreach ($packageName in (Get-MemberName -Object $packages)) {
             $package = $packages.$packageName
