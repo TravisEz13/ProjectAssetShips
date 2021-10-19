@@ -97,7 +97,6 @@ class Reference  : SHiPSDirectory {
         if ($this.Reference.runtime) {
             $runtimes = Get-MemberName -Object $this.Reference.runtime
             foreach ($runtime in $runtimes) {
-                $file = Get-MemberName -Object $this.Reference.runtime.$runtime
                 $result += [Runtime]::new($runtime)
             }
         }
@@ -105,12 +104,18 @@ class Reference  : SHiPSDirectory {
         if ($this.Reference.compile) {
             $names = Get-MemberName -Object $this.Reference.compile
             foreach ($name in $names) {
-                $file = Get-MemberName -Object $this.Reference.compile.$name
                 $result += [Compile]::new($name)
             }
         }
-        #$result += [compile]::new($target)
-        #runtimeTargets
+
+        if ($this.Reference.runtimeTargets) {
+            $names = Get-MemberName -Object $this.Reference.runtimeTargets
+            foreach ($name in $names) {
+                $assetType = $this.Reference.runtimeTargets.$name.assetType
+                $rid  = $this.Reference.runtimeTargets.$name.rid
+                $result += [RuntimeTarget]::new($name, $assetType, $rid)
+            }
+        }
 
         return $result
     }
@@ -135,9 +140,40 @@ class Dependency : SHiPSLeaf {
 }
 
 class PAFile : SHiPSLeaf {
+    PAFile(){}
+
     PAFile([string]$name):base($name) {}
 }
 
+class RTFile : PAFile {
+    [string] $AssetType
+    [string] $Rid
+
+    RTFile([string]$name,[string]$assetType,[string]$rid) {
+        $this.name = $name
+        $this.AssetType = $assetType
+        $this.Rid = $rid
+    }
+}
+
+
+class RuntimeTarget : SHiPSDirectory {
+    [string]$File
+    [string] $AssetType
+    [string] $Rid
+    RuntimeTarget ([string]$name,[string]$assetType,[string]$rid) {
+        $this.File = $name
+        $this.Name = "RuntimeTarget"
+        $this.AssetType = $assetType
+        $this.Rid = $rid
+    }
+
+    [object[]] GetChildItem() {
+        $result = @()
+        $result += [RTFile]::new($this.File,$this.AssetType,$this.Rid)
+        return $result
+    }
+}
 
 class Runtime : SHiPSDirectory {
     [string]$File

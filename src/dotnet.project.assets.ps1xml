@@ -11,6 +11,8 @@
           <TypeName>Project</TypeName>
           <TypeName>ProjectAssetsVersion</TypeName>
           <TypeName>Runtime</TypeName>
+          <TypeName>RuntimeTarget</TypeName>
+          <TypeName>RTFile</TypeName>
           <TypeName>Target</TypeName>
       </ViewSelectedBy>
       <GroupBy>
