@@ -5,8 +5,11 @@ param (
     [switch]
     $Test,
     [switch]
-    $Bootstrap
-
+    $Bootstrap,
+    [switch]
+    $Publish,
+    [string]
+    $NuGetApiKey
 )
 
 if ($Bootstrap) {
@@ -21,4 +24,8 @@ if ($Test) {
         Push-Location SampleProjectAssets:
         Get-ChildItem -Recurse
     } -noexit -wd $psscriptroot
+}
+
+if($Publish) {
+    Publish-Module -Path "$PSScriptRoot/src/dotnet.project.assets/" -NuGetApiKey $NuGetApiKey
 }
