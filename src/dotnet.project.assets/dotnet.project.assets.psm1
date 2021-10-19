@@ -35,7 +35,8 @@ class ProjectAssets : Microsoft.PowerShell.SHiPS.SHiPSDirectory {
         $this.Name = 'spa'
     }
 
-    ProjectAssets([string]$name):base($name) {
+    ProjectAssets([string]$name) {
+        $this.name = $name -replace '/', '|'
     }
 
     [object[]] GetChildItem() {
@@ -64,7 +65,7 @@ class TargetContainer : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
@@ -82,7 +83,7 @@ class LibraryContainer : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
@@ -94,8 +95,7 @@ class Library : SHiPSDirectory {
     Library([string]$name) {
         $this.Library = [ProjectAssets]::Json.libraries.$name
         $this.Path = $this.Library.Path
-        $this.name = $name -replace '/', '-'
-        $target = $this.OriginalName
+        $this.name = $name -replace '/', '|'
         $this.Sha512 = $this.Library.Sha512
     }
 
@@ -108,14 +108,15 @@ class Library : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return "sha512: $($this.sha512)"
     }
 }
 
 class Target : SHiPSDirectory {
     [string] $Path
-    Target([string]$name):base($name) {
+    Target([string]$name) {
+        $this.name = $name -replace '/', '|'
         $this.Path = $name
     }
 
@@ -139,17 +140,19 @@ class Target : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
 
 class Reference  : SHiPSDirectory {
     [object]$Reference
+    [object]$Type
 
-    Reference([string]$name, [object]$Reference) {
+    Reference([string]$name, [object]$Reference, [string]$Type) {
         $this.Reference = $Reference
-        $this.name = $name -replace '/', '-'
+        $this.name = $name -replace '/', '|'
+        $this.Type = $Type
     }
 
     [object[]] GetChildItem() {
@@ -175,7 +178,7 @@ class Reference  : SHiPSDirectory {
             $names = Get-MemberName -Object $this.Reference.runtimeTargets
             foreach ($name in $names) {
                 $assetType = $this.Reference.runtimeTargets.$name.assetType
-                $rid  = $this.Reference.runtimeTargets.$name.rid
+                $rid = $this.Reference.runtimeTargets.$name.rid
                 $result += [RuntimeTarget]::new($name, $assetType, $rid)
             }
         }
@@ -183,8 +186,8 @@ class Reference  : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
-        return ''
+    [string] GetValue() {
+        return $this.Type
     }
 }
 
@@ -203,26 +206,18 @@ class DependencyContainer : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
 
 class Package : Reference {
-    Package([string]$name, [object]$packageObject) : base($name, $packageObject) {
-    }
-
-    [string] GetValue(){
-        return 'Package'
+    Package([string]$name, [object]$packageObject) : base($name, $packageObject, 'Package') {
     }
 }
 
 class Project : Reference {
-    Project([string]$name, [object]$packageObject):base($name, $packageObject) {
-    }
-
-    [string] GetValue(){
-        return 'Project'
+    Project([string]$name, [object]$packageObject):base($name, $packageObject, 'Project') {
     }
 }
 
@@ -233,20 +228,21 @@ class Dependency : SHiPSLeaf {
         $this.Version = $Version
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return $this.Version
     }
 }
 
 class PAFile : SHiPSLeaf {
     [string]$Path
-    PAFile(){}
+    PAFile() {}
 
-    PAFile([string]$name):base($name) {
+    PAFile([string]$name) {
+        $this.name = $name -replace '/', '|'
         $this.Path = $name
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return $this.Path
     }
 }
@@ -255,13 +251,13 @@ class RTFile : PAFile {
     [string] $AssetType
     [string] $Rid
 
-    RTFile([string]$name,[string]$assetType,[string]$rid) {
+    RTFile([string]$name, [string]$assetType, [string]$rid) {
         $this.name = $name
         $this.AssetType = $assetType
         $this.Rid = $rid
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return "AssetType: $($this.AssetType); RID: $($this.Rid)"
     }
 }
@@ -271,7 +267,7 @@ class RuntimeTarget : SHiPSDirectory {
     [string]$File
     [string] $AssetType
     [string] $Rid
-    RuntimeTarget ([string]$name,[string]$assetType,[string]$rid) {
+    RuntimeTarget ([string]$name, [string]$assetType, [string]$rid) {
         $this.File = $name
         $this.Name = "RuntimeTarget"
         $this.AssetType = $assetType
@@ -280,11 +276,11 @@ class RuntimeTarget : SHiPSDirectory {
 
     [object[]] GetChildItem() {
         $result = @()
-        $result += [RTFile]::new($this.File,$this.AssetType,$this.Rid)
+        $result += [RTFile]::new($this.File, $this.AssetType, $this.Rid)
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
@@ -302,7 +298,7 @@ class Runtime : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
@@ -320,7 +316,7 @@ class Compile : SHiPSDirectory {
         return $result
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return ''
     }
 }
@@ -331,7 +327,7 @@ class ProjectAssetsVersion : SHiPSLeaf {
         $this.Version = [ProjectAssets]::Json.version
     }
 
-    [string] GetValue(){
+    [string] GetValue() {
         return $this.Version
     }
 }

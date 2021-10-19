@@ -19,7 +19,7 @@ if ($Bootstrap) {
 if ($Test) {
     pwsh -c {
         get-psdrive -PSProvider ships -erroraction ignore | Remove-PSDrive
-        import-module "./src/dotnet.project.assets.psd1" -force
+        import-module "./src/dotnet.project.assets" -force
         $null = new-padrive -name SampleProjectAssets -Path "./samples/project.assets.json"
         Push-Location SampleProjectAssets:
         Get-ChildItem -Recurse

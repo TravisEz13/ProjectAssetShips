@@ -6,6 +6,7 @@
       <ViewSelectedBy>
           <TypeName>Compile</TypeName>
           <TypeName>Dependency</TypeName>
+          <TypeName>DependencyContainer</TypeName>
           <TypeName>LibraryContainer</TypeName>
           <TypeName>Library</TypeName>
           <TypeName>Package</TypeName>
