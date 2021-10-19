@@ -27,23 +27,19 @@ function Get-MemberName {
 }
 
 [SHiPSProvider()]
-class ProjectAssets : Microsoft.PowerShell.SHiPS.SHiPSDirectory
-{
+class ProjectAssets : Microsoft.PowerShell.SHiPS.SHiPSDirectory {
     static [Object] $Json
     static [String] $Path
 
-    ProjectAssets ()
-    {
-        $this.Name     = 'spa'
+    ProjectAssets () {
+        $this.Name = 'spa'
     }
 
-    ProjectAssets([string]$name):base($name)
-    {
+    ProjectAssets([string]$name):base($name) {
     }
 
-    [object[]] GetChildItem()
-    {
-        $result =  @()
+    [object[]] GetChildItem() {
+        $result = @()
         $result += [ProjectAssetsVersion]::new()
         $targets = [ProjectAssets]::Json.targets | ForEach-Object { Get-MemberName -object $_ }
         foreach ($target in $targets) {
@@ -57,61 +53,76 @@ class ProjectAssets : Microsoft.PowerShell.SHiPS.SHiPSDirectory
     }
 }
 
-class Target : SHiPSDirectory
-{
-    Target([string]$name):base($name)
-    {
+class Target : SHiPSDirectory {
+    Target([string]$name):base($name) {
     }
 
-    [object[]] GetChildItem()
-    {
-        $result =  @()
+    [object[]] GetChildItem() {
+        $result = @()
         $target = $this.Name
         $packages = [ProjectAssets]::Json.targets.$target
-        #$packages = $packages | ForEach-Object { $_ | ft | out-string | Write-Verbose -Verbose}
-        foreach($packageName in (Get-MemberName -Object $packages))
-        {
+        foreach ($packageName in (Get-MemberName -Object $packages)) {
             $package = $packages.$packageName
-            if($package.Type -eq 'package'){
+            if ($package.Type -eq 'package') {
+                Write-Verbose "adding package: $packageName"
                 $result += [Package]::new($packageName, $package)
             }
         }
-        foreach($projectName in (Get-MemberName -Object $packages))
-        {
+        foreach ($projectName in (Get-MemberName -Object $packages)) {
             $project = $packages.$projectName
-            if($project.Type -eq 'project'){
+            if ($project.Type -eq 'project') {
                 $result += [Project]::new($projectName, $project)
             }
         }
-        #TODO add projects
         return $result
     }
 }
 
-class Package : SHiPSDirectory
-{
-    [object]$Package
+class Reference  : SHiPSDirectory {
+    [object]$Reference
 
-    Package([string]$name,[object]$packageObject)
-    {
-        $this.Package = $packageObject
+    Reference([string]$name, [object]$Reference) {
+        $this.Reference = $Reference
         $this.name = $name -replace '/', '-'
     }
 
-    [object[]] GetChildItem()
-    {
-        $result =  @()
-        if($this.Package.dependencies) {
-            $dependencyNames = Get-MemberName -Object $this.Package.dependencies
-            foreach($dependency in $dependencyNames) {
-                $result += [Dependency]::new($dependency,$this.Package.dependencies.$dependency)
+    [object[]] GetChildItem() {
+        $result = @()
+        if ($this.Reference.dependencies) {
+            $dependencyNames = Get-MemberName -Object $this.Reference.dependencies
+            foreach ($dependency in $dependencyNames) {
+                $result += [Dependency]::new($dependency, $this.Reference.dependencies.$dependency)
+            }
+        }
+        if ($this.Reference.runtime) {
+            $runtimes = Get-MemberName -Object $this.Reference.runtime
+            foreach ($runtime in $runtimes) {
+                $file = Get-MemberName -Object $this.Reference.runtime.$runtime
+                $result += [Runtime]::new($runtime)
+            }
+        }
+
+        if ($this.Reference.compile) {
+            $names = Get-MemberName -Object $this.Reference.compile
+            foreach ($name in $names) {
+                $file = Get-MemberName -Object $this.Reference.compile.$name
+                $result += [Compile]::new($name)
             }
         }
         #$result += [compile]::new($target)
-        #runtime
         #runtimeTargets
 
         return $result
+    }
+}
+
+class Package : Reference {
+    Package([string]$name, [object]$packageObject) : base($name, $packageObject) {
+    }
+}
+
+class Project : Reference {
+    Project([string]$name, [object]$packageObject):base($name, $packageObject) {
     }
 }
 
@@ -123,39 +134,42 @@ class Dependency : SHiPSLeaf {
     }
 }
 
-class Project : SHiPSDirectory
-{
-    [object]$Package
+class PAFile : SHiPSLeaf {
+    PAFile([string]$name):base($name) {}
+}
 
-    Project([string]$name, [object]$packageObject)
-    {
-        $this.Package = $packageObject
-        $this.name = $name -replace '/', '-'
+
+class Runtime : SHiPSDirectory {
+    [string]$File
+    Runtime ([string]$name) {
+        $this.File = $name
+        $this.Name = "Runtime"
     }
 
-    [object[]] GetChildItem()
-    {
-        $result =  @()
-        if($this.Package.dependencies) {
-            $dependencyNames = Get-MemberName -Object $this.Package.dependencies
-            foreach($dependency in $dependencyNames) {
-                $result += [Dependency]::new($dependency,$this.Package.dependencies.$dependency)
-            }
-        }
-        #framework
-        #$result += [dependencies]::new($target)
-        #$result += [compile]::new($target)
-        #runtime
-
+    [object[]] GetChildItem() {
+        $result = @()
+        $result += [PAFile]::new($this.File)
         return $result
     }
 }
 
-class ProjectAssetsVersion : SHiPSLeaf
-{
+class Compile : SHiPSDirectory {
+    [string]$File
+    Compile ([string]$name) {
+        $this.File = $name
+        $this.Name = "Compile"
+    }
+
+    [object[]] GetChildItem() {
+        $result = @()
+        $result += [PAFile]::new($this.File)
+        return $result
+    }
+}
+
+class ProjectAssetsVersion : SHiPSLeaf {
     [string]$Version
-    ProjectAssetsVersion () : base ('version')
-    {
+    ProjectAssetsVersion () : base ('version') {
         $this.Version = [ProjectAssets]::Json.version
     }
 }

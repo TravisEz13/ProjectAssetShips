@@ -4,11 +4,14 @@
     <View>
       <Name>ProjectAssets</Name>
       <ViewSelectedBy>
-          <TypeName>ProjectAssetsVersion</TypeName>
-          <TypeName>Target</TypeName>
-          <TypeName>Package</TypeName>
-          <TypeName>Project</TypeName>
+          <TypeName>Compile</TypeName>
           <TypeName>Dependency</TypeName>
+          <TypeName>Package</TypeName>
+          <TypeName>PAFile</TypeName>
+          <TypeName>Project</TypeName>
+          <TypeName>ProjectAssetsVersion</TypeName>
+          <TypeName>Runtime</TypeName>
+          <TypeName>Target</TypeName>
       </ViewSelectedBy>
       <GroupBy>
           <PropertyName>PSParentPath</PropertyName>
@@ -18,6 +21,7 @@
         <TableHeaders>
           <TableColumnHeader><Label>Name</Label></TableColumnHeader>
           <TableColumnHeader><Label>Version</Label></TableColumnHeader>
+          <TableColumnHeader><Label>Type</Label></TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -25,6 +29,7 @@
             <TableColumnItems>
               <TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem>
               <TableColumnItem><PropertyName>Version</PropertyName></TableColumnItem>
+              <TableColumnItem><ScriptBlock>$_.GetType().Name</ScriptBlock></TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
           </TableRowEntries>
